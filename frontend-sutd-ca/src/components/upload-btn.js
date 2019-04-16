@@ -26,9 +26,6 @@ const UploadBtn = styled.button`
 `;
 
 class UploadButton extends Component{
-  constructor(props){
-    super(props);
-  }
 
   renderButtonText(state){
     switch(state){

@@ -3,7 +3,6 @@ import "./App.css";
 import styled from "styled-components";
 import {FileUploader} from "./components";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileUpload,faFileSignature, faSpinner, faTimes, faDownload,faCheckCircle,faTimesCircle} from "@fortawesome/free-solid-svg-icons";
 
 library.add([faFileUpload,faFileSignature,faSpinner, faTimes, faDownload, faCheckCircle, faTimesCircle]);

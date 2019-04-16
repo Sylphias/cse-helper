@@ -84,6 +84,8 @@ class FileUploader extends Component{
       return {color:Green};
     case "error":
       return {color:Red};
+    default:
+      return {color:LightBlue};
     }
   }
 
@@ -123,7 +125,7 @@ class FileUploader extends Component{
       uploadText: "Signing..."
     });
     data.append("file", this.state.selectedFile);
-    axios.post("http://localhost:8000/upload", data)
+    axios.post(`http://${process.env.REACT_APP_API_SERVER}:8000/upload`, data)
       .then(res => { // then print response status
         this.setState({
           processState:"completed",
@@ -145,7 +147,7 @@ class FileUploader extends Component{
   }
 
   async download(){
-    let response = await axios.get(`http://localhost:8000/signed?filename=${this.state.certName}`);
+    let response = await axios.get(`http://${process.env.REACT_APP_API_SERVER}:8000/signed?filename=${this.state.certName}`);
     FileDownload(response.data, "signedCert.crt");
     document.getElementById("cert-uploader").reset();
     this.resetState();
