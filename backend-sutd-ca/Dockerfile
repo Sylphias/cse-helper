@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . /app
 # Install yarn from the local .tgz
 RUN apk add yarn
-RUN RUN apk add --update openssl
+RUN apk add --update openssl
 RUN yarn
 RUN echo PROJ_PATH=/app > .env
 EXPOSE 8000

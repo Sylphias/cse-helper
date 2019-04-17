@@ -5,6 +5,7 @@ COPY . /app
 # Install yarn from the local .tgz
 RUN apk add yarn
 RUN yarn
-RUN echo REACT_APP_API_SERVER=localhost > .env
 EXPOSE 3000
-CMD [ "yarn", "start" ]
+RUN yarn build
+RUN yarn global add serve
+CMD serve -s build -l 3000
