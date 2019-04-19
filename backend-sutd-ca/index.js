@@ -26,8 +26,8 @@ const filter = (req, file, cb)=>{
 
 const upload = multer({ storage: storage , fileFilter:filter}).single("file");
 function deleteFiles(filename){
-  fs.unlink(`public/${filename}.crt`,(err)=>{console.log(err);});
-  fs.unlink(`public/${filename}.csr`,(err)=>{console.log(err);});
+  fs.unlink(`public/${filename}.crt`,(err)=>{if(err)(console.log(err));});
+  fs.unlink(`public/${filename}.csr`,(err)=>{if(err)(console.log(err));});
   console.log("files deleted");
 }
 app.post("/upload",(req, res) => {
@@ -37,7 +37,14 @@ app.post("/upload",(req, res) => {
     } else if (err) {
       return res.status(500).json(err);
     }
-    let filename = /([\d\D]+).csr/gi.exec(req.file.filename)[1];
+    let filename = "";
+    try{
+      filename = /([\d\D]+).csr/gi.exec(req.file.filename)[1];
+    }
+    catch(e){
+      console.log(err);
+      return res.status(500).json(err);
+    }
     if(filename != null || filename != undefined || filename != ""){
       // Perform Cert Signing
       exec(`cd ${PROJ_PATH} && openssl x509 -req -in public/${filename}.csr -CA scripts/cacse.crt -CAkey scripts/cacse.key -CAcreateserial -out public/${filename}.crt`,(err,stdout,stderr)=>{
