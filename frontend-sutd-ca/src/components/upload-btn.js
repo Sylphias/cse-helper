@@ -45,7 +45,7 @@ class UploadButton extends Component{
       return (
         <React.Fragment>
           <FontAwesomeIcon icon="download"/>
-          Sign
+          Download
         </React.Fragment>);
     case "error":
       return (
