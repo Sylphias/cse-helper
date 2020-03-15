@@ -1,40 +1,23 @@
-const {PROJ_PATH} = require("./env");
 const express = require("express");
 const app = express();
-const multer = require("multer");
 const cors = require("cors");
-const {exec} = require("child_process");
-const fs = require("fs");
+const {initializeBot} = require("./bot");
+const {upload,deleteFiles,signFile} = require("./file_utils");
 app.use(cors());
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" +file.originalname );
+const apiSignFileCallback = (err,stdout,stderr,resolve,reject)=>{
+  if(err){
+    console.log(err);
+    reject("Failed To Sign File");
   }
-});
-
-const filter = (req, file, cb)=>{
-  const csrRegex = /([\d\D]+).csr/gi;
-  if(!csrRegex.test(file.originalname)){
-    cb(new Error("Not CSR file"));
-  }
-  cb(null,true);
+  console.log(`stdout: ${stdout}`);
+  console.log(`stderr: ${stderr}`);
+  resolve(stdout);
 };
 
-const upload = multer({ storage: storage , fileFilter:filter}).single("file");
-function deleteFiles(filename){
-  fs.unlink(`public/${filename}.crt`,(err)=>{if(err)(console.log(err));});
-  fs.unlink(`public/${filename}.csr`,(err)=>{if(err)(console.log(err));});
-  console.log("files deleted");
-}
 app.post("/upload",(req, res) => {
   upload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      return res.status(500).json(err);
-    } else if (err) {
+    if (err) {
       return res.status(500).json(err);
     }
     let filename = "";
@@ -47,21 +30,14 @@ app.post("/upload",(req, res) => {
     }
     if(filename != null || filename != undefined || filename != ""){
       // Perform Cert Signing
-      exec(`cd ${PROJ_PATH} && openssl x509 -req -in public/${filename}.csr -CA scripts/cacse.crt -CAkey scripts/cacse.key -CAcreateserial -out public/${filename}.crt`,(err,stdout,stderr)=>{
-        if(err){
-          console.log(err);
-          return res.status(500).json(err);
-        }
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
-        return res.status(200).send({fileName:filename});
-      });
+      signFile(filename,apiSignFileCallback);
     }else{
       return res.status(500).json();
     }
     // Returned Signed file address
   });
 });
+
 app.get("/signed",(req,res) => {
   res.download(`public/${req.query.filename}.crt`, `${req.query.filename}.crt`, (err)=>{
     if (err) {console.log(err);} 
@@ -71,6 +47,9 @@ app.get("/signed",(req,res) => {
     }
   });
 });
+
 app.listen(8000, () => {
   console.log("App running on port 8000");
 });
+
+initializeBot();
