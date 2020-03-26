@@ -25,7 +25,6 @@ const initializeBot = ()=>{
   });
   bot.on("document", async (ctx)=>{
     doc = ctx.message.document;
-
     if(!doc){
       ctx.reply("Sorry, no files were received");
     }
@@ -42,8 +41,7 @@ const initializeBot = ()=>{
       await writeFile(new_file_name,res)
       await signFile(new_file_name,botSignFileCallback)
       signed_file = fs.readFileSync(`public/${new_file_name}.crt`)
-      // await axios.post(`https://api.telegram.org/bot${TELE_BOT_TOKEN}/sendDocument`)
-      const send_doc = await telegram.sendDocument(ctx.message.chat.id,{source:signed_file, filename:`${new_file_name}.crt`})
+      await telegram.sendDocument(ctx.message.chat.id,{source:signed_file, filename:`${new_file_name}.crt`})
     }catch(err){
       console.log(err)
       ctx.reply("Sorry, there was an issue signing your file. Please try again!");
