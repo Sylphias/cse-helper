@@ -22,12 +22,17 @@ const initializeBot = ()=>{
   const telegram = new Telegram(TELE_BOT_TOKEN);
   bot.start((ctx)=>{
     ctx.reply("Hello! I am the CSE Cert Bot. You can sign your certificate by sending me your file!");
+    const chat_info = ctx.chat
+    console.log(`${chat_info.first_name} ${chat_info.last_name} (${chat_info.username}) has started the bot`)
   });
-  bot.on("document", async (ctx)=>{
+  
+  bot.on("document", async (ctx) =>{
+    const chat_info = ctx.chat
     doc = ctx.message.document;
     if(!doc){
       ctx.reply("Sorry, no files were received");
     }
+    console.log(`${chat_info.first_name} ${chat_info.last_name} (${chat_info.username}) has sent a file ${doc.file_name}`)
     if(!isFileCSR(doc.file_name)){
       ctx.reply("Please upload a .CSR file! (No other filetypes are accepted)");
       return
@@ -42,8 +47,10 @@ const initializeBot = ()=>{
       await signFile(new_file_name,botSignFileCallback)
       signed_file = fs.readFileSync(`public/${new_file_name}.crt`)
       await telegram.sendDocument(ctx.message.chat.id,{source:signed_file, filename:`${new_file_name}.crt`})
-      ctx.reply("Thank you for signing with us! Please download the signed certificate to continue with the assignment!")
+      ctx.reply("Thank you for signing with us! Please download the signed certificate (.crt file) to continue with the assignment!")
+      console.log(`${chat_info.first_name} ${chat_info.last_name} (${chat_info.username}) successfully signed ${doc.file_name}`)
     }catch(err){
+      console.log(`${chat_info.first_name} ${chat_info.last_name} (${chat_info.username}) has an error with ${doc.file_name}`)
       console.log(err)
       ctx.reply("Sorry, there was an issue signing your file. Please try again!");
       deleteFiles(new_file_name)
