@@ -42,6 +42,7 @@ const initializeBot = ()=>{
       await signFile(new_file_name,botSignFileCallback)
       signed_file = fs.readFileSync(`public/${new_file_name}.crt`)
       await telegram.sendDocument(ctx.message.chat.id,{source:signed_file, filename:`${new_file_name}.crt`})
+      ctx.reply("Thank you for signing with us! Please download the signed certificate to continue with the assignment!")
     }catch(err){
       console.log(err)
       ctx.reply("Sorry, there was an issue signing your file. Please try again!");
